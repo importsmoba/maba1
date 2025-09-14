@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento com Cartão - Moba Imports</title>
+    <meta name="description" content="Finalize seu pagamento com cartão de crédito na Moba Imports.">
+    <meta name="robots" content="noindex, nofollow">
+
+    <style>
+        :root {
+            --bg-main: #121212;
+            --bg-secondary: #1a1a1a;
+            --text-main: #e0e0e0;
+            --text-secondary: #a0a0a0;
+            --accent: #ff6600;
+            --accent-hover: #ff8533;
+            --border-color: #333;
+            --success-color: #28a745;
+            --error-color: #dc3545;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            color: #ffffff;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        h1 {
+            font-size: 2.5rem;
+            margin-top: 2rem;
+        }
+        h2 {
+            font-size: 1.8rem;
+            color: var(--accent);
+        }
+        p {
+            color: var(--text-secondary);
+        }
+        .header, .footer {
+            background-color: var(--bg-secondary);
+            padding: 1rem 0;
+            text-align: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #fff;
+            text-decoration: none;
+        }
+        .footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        main {
+            padding: 40px 0;
+            flex-grow: 1;
+        }
+        .payment-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .resumo-pedido {
+            background-color: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .resumo-pedido ul {
+            list-style: none;
+        }
+        .resumo-pedido li {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            font-size: 1.1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .resumo-pedido li:last-child {
+            border-bottom: none;
+        }
+        .resumo-pedido .total {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--accent);
+            margin-top: 1rem;
+        }
+        .form-cartao {
+            background-color: var(--bg-secondary);
+            padding: 2rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--bg-main);
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        .form-row {
+            display: flex;
+            gap: 1rem;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--accent);
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease;
+        }
+        .submit-btn:hover {
+            background-color: var(--accent-hover);
+        }
+        .submit-btn:disabled {
+            background-color: var(--text-secondary);
+            cursor: not-allowed;
+        }
+        .error-message {
+            color: var(--error-color);
+            font-size: 0.9rem;
+            margin-top: 5px;
+            display: none;
+        }
+        input.invalid {
+            border-color: var(--error-color);
+        }
+        .security-info {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success-color);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        .security-info h3 {
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+            font-size: 1.1rem;
+        }
+        .security-info p {
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .card-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            padding: 1.5rem;
+            color: white;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        .card-preview::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        .card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            margin-bottom: 1rem;
+        }
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+        }
+        .card-holder {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+        .card-expiry {
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .success-message {
+            display: none;
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid var(--success-color);
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+        .success-message h3 {
+            color: var(--success-color);
+            margin-bottom: 1rem;
+        }
+        .success-message p {
+            color: var(--text-main);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .container {
+                width: 95%;
+            }
+            .form-cartao, .resumo-pedido {
+                padding: 1.5rem;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            .card-preview {
+                padding: 1rem;
+            }
+            .card-number {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="container">
+            <a href="index.html" class="logo">Moba Imports</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <h1>Pagamento com Cartão</h1>
+            <div class="payment-layout">
+                
+                <section class="resumo-pedido">
+                    <h2>Resumo do Pedido</h2>
+                    <ul>
+                        <li>
+                            <span>Produto:</span>
+                            <span id="produto-nome">Carregando...</span>
+                        </li>
+                        <li>
+                            <span>Valor do Produto:</span>
+                            <span id="produto-preco">R$ 0,00</span>
+                        </li>
+                        <li>
+                            <span>Frete:</span>
+                            <span id="frete-valor">R$ 0,00</span>
+                        </li>
+                        <li class="total">
+                            <span>Total a Pagar:</span>
+                            <span id="total-valor">R$ 0,00</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="form-cartao">
+                    <div class="security-info">
+                        <h3>🔒 Pagamento Seguro</h3>
+                        <p>Seus dados são protegidos e criptografados. Não armazenamos informações do cartão.</p>
+                    </div>
+
+                    <div class="card-preview">
+                        <div class="card-number" id="card-display">**** **** **** ****</div>
+                        <div class="card-info">
+                            <div class="card-holder" id="holder-display">NOME DO PORTADOR</div>
+                            <div class="card-expiry" id="expiry-display">MM/AA</div>
+                        </div>
+                    </div>
+
+                    <form id="payment-form" novalidate>
+                        <h2>Dados do Cartão</h2>
+                        
+                        <div class="form-group">
+                            <label for="numero-cartao">Número do Cartão</label>
+                            <input type="text" id="numero-cartao" name="numero-cartao" placeholder="1234 5678 9012 3456" maxlength="19" required>
+                            <p class="error-message">Número do cartão inválido.</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="nome-cartao">Nome como está no Cartão</label>
+                            <input type="text" id="nome-cartao" name="nome-cartao" placeholder="NOME COMPLETO" required>
+                            <p class="error-message">Campo obrigatório.</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="validade">Data de Validade</label>
+                                <input type="text" id="validade" name="validade" placeholder="MM/AA" maxlength="5" required>
+                                <p class="error-message">Data inválida.</p>
+                            </div>
+                            <div class="form-group">
+                                <label for="cvc">CVC</label>
+                                <input type="text" id="cvc" name="cvc" placeholder="123" maxlength="4" required>
+                                <p class="error-message">CVC inválido.</p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="cpf">CPF do Portador</label>
+                            <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" maxlength="14" required>
+                            <p class="error-message">CPF inválido.</p>
+                        </div>
+
+                        <button type="submit" class="submit-btn" id="submit-btn">
+                            Finalizar Pagamento
+                        </button>
+                    </form>
+
+                    <div class="success-message" id="success-message">
+                        <h3>✅ Pagamento Processado com Sucesso!</h3>
+                        <p>Seus dados foram salvos e o pedido está sendo processado.</p>
+                        <p>Você receberá uma confirmação por WhatsApp em breve.</p>
+                        <p><strong>Número do Pedido:</strong> <span id="numero-pedido"></span></p>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>Moba Imports - Câmeras Profissionais e Drones &copy; 2025</p>
+        </div>
+    </footer>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obter parâmetros da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const produtoNome = urlParams.get('produto_nome') || 'Produto não encontrado';
+        const produtoPreco = parseFloat(urlParams.get('produto_preco')) || 0;
+        const frete = parseFloat(urlParams.get('frete')) || 0;
+        const total = parseFloat(urlParams.get('total')) || 0;
+
+        // Preencher resumo do pedido
+        document.getElementById('produto-nome').textContent = produtoNome;
+        document.getElementById('produto-preco').textContent = `R$ ${produtoPreco.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        document.getElementById('frete-valor').textContent = `R$ ${frete.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+        document.getElementById('total-valor').textContent = `R$ ${total.toLocaleString('pt-BR', {minimumFractionDigits: 2})}`;
+
+        // Elementos do formulário
+        const numeroCartaoInput = document.getElementById('numero-cartao');
+        const nomeCartaoInput = document.getElementById('nome-cartao');
+        const validadeInput = document.getElementById('validade');
+        const cvcInput = document.getElementById('cvc');
+        const cpfInput = document.getElementById('cpf');
+        const form = document.getElementById('payment-form');
+        const submitBtn = document.getElementById('submit-btn');
+        const successMessage = document.getElementById('success-message');
+
+        // Elementos do preview do cartão
+        const cardDisplay = document.getElementById('card-display');
+        const holderDisplay = document.getElementById('holder-display');
+        const expiryDisplay = document.getElementById('expiry-display');
+
+        // Formatação do número do cartão
+        numeroCartaoInput.addEventListener('input', function() {
+            let value = this.value.replace(/\s/g, '').replace(/[^0-9]/gi, '');
+            let formattedValue = value.match(/.{1,4}/g)?.join(' ') || value;
+            if (formattedValue.length > 19) formattedValue = formattedValue.substr(0, 19);
+            this.value = formattedValue;
+            
+            // Atualizar preview
+            cardDisplay.textContent = formattedValue || '**** **** **** ****';
+        });
+
+        // Formatação do nome no cartão
+        nomeCartaoInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+            holderDisplay.textContent = this.value || 'NOME DO PORTADOR';
+        });
+
+        // Formatação da validade
+        validadeInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length >= 2) {
+                value = value.substring(0, 2) + '/' + value.substring(2, 4);
+            }
+            this.value = value;
+            expiryDisplay.textContent = value || 'MM/AA';
+        });
+
+        // Formatação do CVC (apenas números)
+        cvcInput.addEventListener('input', function() {
+            this.value = this.value.replace(/[^0-9]/g, '');
+        });
+
+        // Formatação do CPF
+        cpfInput.addEventListener('input', function() {
+            let value = this.value.replace(/\D/g, '');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d)/, '$1.$2');
+            value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+            this.value = value;
+        });
+
+        // Validação do formulário
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let isValid = true;
+            
+            // Validar número do cartão
+            const numeroCartao = numeroCartaoInput.value.replace(/\s/g, '');
+            if (numeroCartao.length < 13 || numeroCartao.length > 19) {
+                showError(numeroCartaoInput, 'Número do cartão inválido.');
+                isValid = false;
+            } else {
+                hideError(numeroCartaoInput);
+            }
+            
+            // Validar nome
+            if (!nomeCartaoInput.value.trim()) {
+                showError(nomeCartaoInput, 'Campo obrigatório.');
+                isValid = false;
+            } else {
+                hideError(nomeCartaoInput);
+            }
+            
+            // Validar validade
+            const validade = validadeInput.value;
+            const validadeRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+            if (!validadeRegex.test(validade)) {
+                showError(validadeInput, 'Data inválida.');
+                isValid = false;
+            } else {
+                hideError(validadeInput);
+            }
+            
+            // Validar CVC
+            const cvc = cvcInput.value;
+            if (cvc.length < 3 || cvc.length > 4) {
+                showError(cvcInput, 'CVC inválido.');
+                isValid = false;
+            } else {
+                hideError(cvcInput);
+            }
+            
+            // Validar CPF
+            const cpf = cpfInput.value.replace(/\D/g, '');
+            if (!validarCPF(cpf)) {
+                showError(cpfInput, 'CPF inválido.');
+                isValid = false;
+            } else {
+                hideError(cpfInput);
+            }
+            
+            if (isValid) {
+                processarPagamento();
+            }
+        });
+
+        function showError(input, message) {
+            input.classList.add('invalid');
+            const errorMsg = input.parentNode.querySelector('.error-message');
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+        }
+
+        function hideError(input) {
+            input.classList.remove('invalid');
+            const errorMsg = input.parentNode.querySelector('.error-message');
+            errorMsg.style.display = 'none';
+        }
+
+        function validarCPF(cpf) {
+            if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+            
+            let soma = 0;
+            for (let i = 0; i < 9; i++) {
+                soma += parseInt(cpf.charAt(i)) * (10 - i);
+            }
+            let resto = 11 - (soma % 11);
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.charAt(9))) return false;
+            
+            soma = 0;
+            for (let i = 0; i < 10; i++) {
+                soma += parseInt(cpf.charAt(i)) * (11 - i);
+            }
+            resto = 11 - (soma % 11);
+            if (resto === 10 || resto === 11) resto = 0;
+            if (resto !== parseInt(cpf.charAt(10))) return false;
+            
+            return true;
+        }
+
+        function processarPagamento() {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processando...';
+            
+            // Simular processamento
+            setTimeout(() => {
+                // Salvar dados em arquivo
+                salvarDadosPagamento();
+                
+                // Mostrar mensagem de sucesso
+                form.style.display = 'none';
+                successMessage.style.display = 'block';
+                
+                // Gerar número do pedido
+                const numeroPedido = 'MB' + Date.now().toString().slice(-6);
+                document.getElementById('numero-pedido').textContent = numeroPedido;
+                
+                // Redirecionar após 5 segundos
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 5000);
+                
+            }, 2000);
+        }
+
+        function salvarDadosPagamento() {
+            // Dados do pagamento para salvar
+            const dadosPagamento = {
+                timestamp: new Date().toISOString(),
+                produto: {
+                    nome: produtoNome,
+                    preco: produtoPreco,
+                    frete: frete,
+                    total: total
+                },
+                cliente: {
+                    nome: urlParams.get('nome'),
+                    email: urlParams.get('email'),
+                    telefone: urlParams.get('telefone'),
+                    endereco: urlParams.get('endereco'),
+                    cidade: urlParams.get('cidade'),
+                    estado: urlParams.get('estado'),
+                    cep: urlParams.get('cep')
+                },
+                cartao: {
+                    numero: numeroCartaoInput.value.replace(/\s/g, '').replace(/\d(?=\d{4})/g, '*'),
+                    nome: nomeCartaoInput.value,
+                    validade: validadeInput.value,
+                    cvc: '***',
+                    cpf: cpfInput.value
+                }
+            };
+
+            // Enviar dados para o servidor (simulado)            // URL do seu backend (será atualizada após o deploy na Render)
+            const backendUrl = 'YOUR_RENDER_BACKEND_URL'; // Substitua pela URL do seu serviço Render
+
+            fetch(`${backendUrl}/salvar-pagamento`, {                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(dadosPagamento)
+            }).catch(error => {
+                console.log('Dados do pagamento:', dadosPagamento);
+            });
+        }
+    });
+    </script>
+</body>
+</html>
+
